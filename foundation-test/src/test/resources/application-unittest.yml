@@ -1,0 +1,12 @@
+foundation:
+  zookeeper:
+    namespace: github/foundation/unittest
+    servers: 172.16.32.184:2181,172.16.32.185:2181,172.16.32.186:2181
+  project:
+    name: foundation-unittest
+    env: unit
+spring:
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password:
