@@ -10,7 +10,6 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>foundation-pagination-starter</artifactId>
-    <packaging>pom</packaging>
     <name>foundation-pagination-starter</name>
 
     <properties>

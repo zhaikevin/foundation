@@ -5,8 +5,37 @@ foundation:
   project:
     name: foundation-unittest
     env: unit
+
 spring:
   redis:
     host: 127.0.0.1
     port: 6379
     password:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:h2:mem:test;MODE=MYSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+    schema: classpath:db/schema.sql
+    data: classpath:db/data.sql
+
+#pagehelper分页插件
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+
+#mybatis配置
+mybatis:
+  type-aliases-package: com.github.foundation.test.model
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+# 通用 Mapper 配置
+mapper:
+  mappers: com.github.foundation.datasource.mapper.BaseMapper
+  not-empty: false
+  identity: MYSQL

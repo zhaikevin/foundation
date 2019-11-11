@@ -3,6 +3,7 @@ package com.github.foundation.test;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+import tk.mybatis.spring.annotation.MapperScan;
 
 /**
  * @Description:
@@ -11,6 +12,7 @@ import org.springframework.context.annotation.ComponentScan;
  */
 @SpringBootApplication
 @ComponentScan(basePackages = {"com.github.foundation"})
+@MapperScan("com.github.foundation.test.dao")
 public class FoundationServer {
 
     public static void main(String[] args) {

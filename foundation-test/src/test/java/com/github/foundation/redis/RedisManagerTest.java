@@ -2,6 +2,7 @@ package com.github.foundation.redis;
 
 import com.github.foundation.SpringBootTestAbstract;
 import com.github.foundation.common.utils.ThreadUtils;
+import com.github.foundation.test.model.User;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
