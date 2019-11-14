@@ -16,6 +16,7 @@
         <module>foundation-spring-starter</module>
         <module>foundation-pagination-starter</module>
         <module>foundation-datasource-starter</module>
+        <module>foundation-es-starter</module>
     </modules>
     <name>foundation</name>
 
@@ -34,7 +35,7 @@
         <junit.version>4.12</junit.version>
         <mockito.version>1.10.19</mockito.version>
         <powermock.version>1.6.4</powermock.version>
-        <spring-boot.version>2.1.5.RELEASE</spring-boot.version>
+        <spring-boot.version>2.2.0.RELEASE</spring-boot.version>
     </properties>
 
     <dependencies>

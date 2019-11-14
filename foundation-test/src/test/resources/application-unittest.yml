@@ -19,6 +19,12 @@ spring:
     driver-class-name: org.h2.Driver
     schema: classpath:db/schema.sql
     data: classpath:db/data.sql
+  elasticsearch:
+    rest:
+      uris: 172.16.32.184:9200,172.16.32.185:9200,172.16.32.186:9200
+      username:
+      password:
+
 
 #pagehelper分页插件
 pagehelper:

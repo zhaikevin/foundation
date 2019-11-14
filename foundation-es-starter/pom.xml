@@ -9,13 +9,15 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>foundation-test</artifactId>
+    <artifactId>foundation-es-starter</artifactId>
+    <name>foundation-es-starter</name>
 
     <properties>
-        <h2.version>1.4.197</h2.version>
+        <es.version>7.2.0</es.version>
     </properties>
 
     <dependencies>
+
         <dependency>
             <groupId>com.github</groupId>
             <artifactId>foundation-common</artifactId>
@@ -49,53 +51,15 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github</groupId>
-            <artifactId>foundation-zookeeper-starter</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github</groupId>
-            <artifactId>foundation-redis-starter</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github</groupId>
-            <artifactId>foundation-pagination-starter</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github</groupId>
-            <artifactId>foundation-datasource-starter</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github</groupId>
-            <artifactId>foundation-es-starter</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-high-level-client</artifactId>
+            <version>${es.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
             <version>${spring-boot.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <version>${spring-boot.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>${h2.version}</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
