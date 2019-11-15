@@ -12,19 +12,12 @@ import static java.util.Collections.addAll;
 
 public abstract class AbstractQuery implements Query {
 
-    // protected Pageable pageable = DEFAULT_PAGE;
 
     protected Pageable pageable;
     protected List<String> types = new ArrayList<>();
     protected List<String> indices = new ArrayList<>();
     protected List<String> fields = new ArrayList<>();
     protected SourceFilter sourceFilter;
-    protected float minScore;
-    protected Collection<String> ids;
-    protected String route;
-    protected SearchType searchType = SearchType.DFS_QUERY_THEN_FETCH;
-    protected IndicesOptions indicesOptions;
-    protected boolean trackScores;
 
     @Override
     public List<String> getIndices() {
@@ -50,7 +43,6 @@ public abstract class AbstractQuery implements Query {
     @Override
     public <T extends Query> T setPageable(Pageable pageable) {
         this.pageable = pageable;
-        // TODO 是否需要操作 pageable
         return (T) this;
     }
 
@@ -61,14 +53,12 @@ public abstract class AbstractQuery implements Query {
 
     @Override
     public void addFields(String... fields) {
-        // TODO Auto-generated method stub
-
+        addAll(this.fields, fields);
     }
 
     @Override
     public List<String> getFields() {
-        // TODO Auto-generated method stub
-        return null;
+        return this.fields;
     }
 
     @Override
@@ -81,37 +71,5 @@ public abstract class AbstractQuery implements Query {
         return this.sourceFilter;
     }
 
-    @Override
-    public float getMinScore() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public boolean getTrackScores() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public Collection<String> getIds() {
-        return ids;
-    }
-
-    public void setIds(Collection<String> ids) {
-        this.ids = ids;
-    }
-
-    @Override
-    public SearchType getSearchType() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public IndicesOptions getIndicesOptions() {
-        // TODO Auto-generated method stub
-        return null;
-    }
 
 }

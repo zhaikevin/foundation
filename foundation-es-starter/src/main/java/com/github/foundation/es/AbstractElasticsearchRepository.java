@@ -1,12 +1,12 @@
 package com.github.foundation.es;
 
+import com.github.foundation.common.exception.DataAccessException;
 import com.github.foundation.es.core.ElasticsearchOperations;
 import com.github.foundation.es.domain.Page;
 import com.github.foundation.es.domain.Pageable;
 import com.github.foundation.es.query.GetQuery;
 import com.github.foundation.es.query.IndexQuery;
 import com.github.foundation.es.query.NativeSearchQuery;
-import com.github.foundation.es.query.SearchQuery;
 import com.github.foundation.es.query.SourceFilter;
 import com.github.foundation.es.query.StringQuery;
 import com.google.common.base.Preconditions;
@@ -17,8 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.lang.reflect.ParameterizedType;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -30,9 +30,9 @@ public abstract class AbstractElasticsearchRepository<T, ID extends Serializable
     protected ElasticsearchOperations elasticsearchOperations;
     protected Class<T> entityClass;
 
-    public AbstractElasticsearchRepository(ElasticsearchOperations elasticsearchOperations, Class<T> clazz) {
+    public AbstractElasticsearchRepository(ElasticsearchOperations elasticsearchOperations) {
         Preconditions.checkNotNull(elasticsearchOperations, "ElasticsearchOperations must not be null!");
-        this.entityClass = clazz;
+        this.entityClass = getEntityClass();
         this.elasticsearchOperations = elasticsearchOperations;
     }
 
@@ -54,10 +54,10 @@ public abstract class AbstractElasticsearchRepository<T, ID extends Serializable
     }
 
     @Override
-    public Optional<T> findById(ID id) {
+    public T findById(ID id) {
         GetQuery query = new GetQuery();
         query.setId(String.valueOf(id));
-        return Optional.ofNullable(elasticsearchOperations.queryForObject(query, entityClass));
+        return elasticsearchOperations.queryForObject(query, entityClass);
     }
 
     @Override
@@ -98,11 +98,6 @@ public abstract class AbstractElasticsearchRepository<T, ID extends Serializable
     }
 
     @Override
-    public Page<T> search(SearchQuery searchQuery) {
-        return null;
-    }
-
-    @Override
     public Iterable<T> search(String source) {
         StringQuery stringQuery = new StringQuery(source);
         return elasticsearchOperations.queryForList(stringQuery, entityClass);
@@ -120,12 +115,32 @@ public abstract class AbstractElasticsearchRepository<T, ID extends Serializable
     }
 
     @Override
-    public T sum(QueryBuilder query, AggregationBuilder agg) {
-        return elasticsearchOperations.sum(query, entityClass, agg);
+    public Class<T> getEntityClass() {
+        if (entityClass == null) {
+            try {
+                entityClass = resolveReturnedClassFromGenericType();
+            } catch (Exception e) {
+                LOGGER.error("Unable to resolve EntityClass. Please use according setter!:", e.getMessage(), e);
+                throw new DataAccessException("Unable to resolve EntityClass. Please use according setter!", e);
+            }
+        }
+
+        return entityClass;
     }
 
-    @Override
-    public T sum(QueryBuilder query, List<AggregationBuilder> sumAggList) {
-        return elasticsearchOperations.sum(query, entityClass, sumAggList);
+    private Class<T> resolveReturnedClassFromGenericType() {
+        ParameterizedType parameterizedType = resolveReturnedClassFromGenericType(getClass());
+        return (Class<T>) parameterizedType.getActualTypeArguments()[0];
+    }
+
+    private ParameterizedType resolveReturnedClassFromGenericType(Class<?> clazz) {
+
+        Object genericSuperclass = clazz.getGenericSuperclass();
+        if (genericSuperclass instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = (ParameterizedType) genericSuperclass;
+            return parameterizedType;
+        }
+
+        return resolveReturnedClassFromGenericType(clazz.getSuperclass());
     }
 }

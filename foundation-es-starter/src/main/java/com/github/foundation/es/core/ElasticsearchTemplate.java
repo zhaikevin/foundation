@@ -156,37 +156,49 @@ public class ElasticsearchTemplate implements ElasticsearchOperations {
         try {
             IndexResponse indexResponse = client.index(indexRequest, options);
             String index = indexResponse.getIndex();
-            String type = indexResponse.getType();
             String id = indexResponse.getId();
             long version = indexResponse.getVersion();
             if (indexResponse.getResult() == DocWriteResponse.Result.CREATED) {
                 // 文档第一次创建
-                LOGGER.debug("elasticsearch index created. index:{}, type:{}, id:{}, version:{}", index, type, id,
+                LOGGER.debug("elasticsearch index created. index:{},  id:{}, version:{}", index, id,
                         version);
             } else if (indexResponse.getResult() == DocWriteResponse.Result.UPDATED) {
                 // 文档更新
-                LOGGER.debug("elasticsearch index updated. index:{}, type:{}, id:{}, version:{}", index, type, id,
+                LOGGER.debug("elasticsearch index updated. index:{},  id:{}, version:{}", index, id,
                         version);
             }
             ReplicationResponse.ShardInfo shardInfo = indexResponse.getShardInfo();
             if (shardInfo.getTotal() != shardInfo.getSuccessful()) {
                 // 成功的分片数量少于总分片数量 
-                LOGGER.warn("elasticsearch index shadinfo warning. index:{}, type:{}, id:{}, version:{}", index, type,
+                LOGGER.warn("elasticsearch index shadinfo warning. index:{}, id:{}, version:{}", index,
                         id, version);
             }
             if (shardInfo.getFailed() > 0) {
                 for (ReplicationResponse.ShardInfo.Failure failure : shardInfo.getFailures()) {
                     // 处理潜在的失败信息
                     String reason = failure.reason();
-                    LOGGER.warn("elasticsearch index shadinfo failure. index:{}, type:{}, id:{}, version:{}, reason:{}",
-                            index, type, id, version, reason);
+                    LOGGER.warn("elasticsearch index shadinfo failure. index:{}, id:{}, version:{}, reason:{}",
+                            index, id, version, reason);
                 }
             }
-
+            if (query.getObject() != null) {
+                setPersistentEntityId(query.getObject(), id);
+            }
             return id;
-        } catch (IOException e) {
-            LOGGER.error("index IOException", e);
-            throw new ElasticsearchException("index IOException", e);
+        } catch (Exception e) {
+            LOGGER.error("index exception", e);
+            throw new ElasticsearchException("index exception", e);
+        }
+    }
+
+    private void setPersistentEntityId(Object entity, String documentId) throws IllegalAccessException {
+        Class<?> clazz = entity.getClass();
+        for (Field f : clazz.getDeclaredFields()) {
+            Id id = f.getAnnotation(Id.class);
+            if (id != null && f.getType().isAssignableFrom(String.class)) {
+                f.setAccessible(true);
+                f.set(entity, documentId);
+            }
         }
     }
 
@@ -200,16 +212,14 @@ public class ElasticsearchTemplate implements ElasticsearchOperations {
             String indexName = StringUtils.isEmpty(query.getIndexName())
                     ? retrieveIndexNameFromPersistentEntity(query.getObject().getClass())
                     : query.getIndexName();
-            String type = StringUtils.isEmpty(query.getType())
-                    ? retrieveTypeFromPersistentEntity(query.getObject().getClass())
-                    : query.getType();
 
             String id = query.getId();
             if (StringUtils.isEmpty(id)) {
                 id = getPersistentEntityId(query.getObject());
             }
 
-            IndexRequest indexRequest = new IndexRequest(indexName, type, id);
+            IndexRequest indexRequest = new IndexRequest(indexName);
+            indexRequest.id(id);
 
             // source 变量只能是 json 格式
             String jsonSource = query.getSource();
@@ -241,22 +251,6 @@ public class ElasticsearchTemplate implements ElasticsearchOperations {
             if (document != null) {
                 String indexName = document.indexName();
                 return indexName;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * 获取索引 type， 从  @Document 注解中获取
-     * @param clazz 实体类
-     * @return type 索引类型
-     */
-    private String retrieveTypeFromPersistentEntity(Class<?> clazz) {
-        if (clazz != null) {
-            Document document = clazz.getAnnotation(Document.class);
-            if (document != null) {
-                return document.type();
             }
         }
         return null;
@@ -345,18 +339,16 @@ public class ElasticsearchTemplate implements ElasticsearchOperations {
     public <T> String delete(Class<T> clazz, String id) {
         String index = retrieveIndexNameFromPersistentEntity(clazz);
 
-        String type = retrieveTypeFromPersistentEntity(clazz);
-
-        DeleteRequest deleteRequest = prepareDeleteRequest(index, type, id);
+        DeleteRequest deleteRequest = prepareDeleteRequest(index, id);
         try {
             DeleteResponse deleteResponse = client.delete(deleteRequest, options);
 
             if (deleteResponse.getResult() == DocWriteResponse.Result.NOT_FOUND) {
-                LOGGER.warn("elasticsearch index not found. index:{}, type:{}, id:{}", index, type, id);
+                LOGGER.warn("elasticsearch index not found. index:{}, type:{}, id:{}", index, id);
                 return id;
             }
 
-            LOGGER.debug("elasticsearch index deleted. index:{}, type:{}, id:{}", index, type, id);
+            LOGGER.debug("elasticsearch index deleted. index:{}, type:{}, id:{}", index, id);
             return id;
 
         } catch (IOException e) {
@@ -368,12 +360,11 @@ public class ElasticsearchTemplate implements ElasticsearchOperations {
     /**
      * 构建 DeleteRequest
      * @param index 索引
-     * @param doc   文档
      * @param id    删除请求的 id
      * @return DeleteRequest 删除请求
      */
-    private DeleteRequest prepareDeleteRequest(String index, String doc, String id) {
-        return new DeleteRequest(index, doc, id);
+    private DeleteRequest prepareDeleteRequest(String index, String id) {
+        return new DeleteRequest(index, id);
     }
 
     @Override
@@ -381,9 +372,7 @@ public class ElasticsearchTemplate implements ElasticsearchOperations {
 
         String index = retrieveIndexNameFromPersistentEntity(clazz);
 
-        String type = retrieveTypeFromPersistentEntity(clazz);
-
-        GetRequest getRequest = new GetRequest(index, type, query.getId());
+        GetRequest getRequest = new GetRequest(index, query.getId());
 
         try {
             GetResponse getResponse = client.get(getRequest, options);
@@ -405,10 +394,8 @@ public class ElasticsearchTemplate implements ElasticsearchOperations {
     @Override
     public <T> long countAll(Class<T> clazz) {
         String indexName = retrieveIndexNameFromPersistentEntity(clazz);
-        String type = retrieveTypeFromPersistentEntity(clazz);
 
         SearchRequest searchRequest = new SearchRequest(indexName);
-        searchRequest.types(type);
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         // 添加 match_all 查询
         searchSourceBuilder.query(QueryBuilders.matchAllQuery());
@@ -514,8 +501,7 @@ public class ElasticsearchTemplate implements ElasticsearchOperations {
      * @return searchRequest 查询请求
      */
     private <T> SearchRequest prepareSearchRequest(SearchQuery query, Class<T> clazz) {
-        // prepare index and type 
-        setPersistentEntityIndexAndType(query, clazz);
+        setPersistentEntityIndex(query, clazz);
 
         SearchSourceBuilder searchSourceBuilder = prepareSearchSourceBuilder(query);
         SearchRequest searchRequest = new SearchRequest();
@@ -532,12 +518,9 @@ public class ElasticsearchTemplate implements ElasticsearchOperations {
      * @param query 查询请求
      * @param clazz 实体类
      */
-    private <T> void setPersistentEntityIndexAndType(SearchQuery query, Class<T> clazz) {
+    private <T> void setPersistentEntityIndex(SearchQuery query, Class<T> clazz) {
         if (query.getIndices().isEmpty()) {
             query.addIndices(retrieveIndexNameFromPersistentEntity(clazz));
-        }
-        if (query.getTypes().isEmpty()) {
-            query.addTypes(retrieveTypeFromPersistentEntity(clazz));
         }
     }
 
@@ -617,9 +600,8 @@ public class ElasticsearchTemplate implements ElasticsearchOperations {
     public <T> void bulkDelete(List<String> ids, Class<T> clazz) {
 
         final String index = retrieveIndexNameFromPersistentEntity(clazz);
-        final String type = retrieveTypeFromPersistentEntity(clazz);
 
-        List<DeleteRequest> deleteList = ids.stream().map(id -> prepareDeleteRequest(index, type, id))
+        List<DeleteRequest> deleteList = ids.stream().map(id -> prepareDeleteRequest(index, id))
                 .collect(Collectors.toList());
 
         final BulkRequest bulkRequest = prepareBulkRequest();
@@ -640,9 +622,8 @@ public class ElasticsearchTemplate implements ElasticsearchOperations {
 
                     String deleteId = deleteResponse.getId();
                     String deleteIndex = deleteResponse.getIndex();
-                    String deleteType = deleteResponse.getType();
 
-                    LOGGER.debug("delete response id: {}, index: {}, type: {}", deleteId, deleteIndex, deleteType);
+                    LOGGER.debug("delete response id: {}, index: {}", deleteId, deleteIndex);
                 }
             }
 
@@ -722,77 +703,15 @@ public class ElasticsearchTemplate implements ElasticsearchOperations {
     @Override
     public <T> List<T> searchWithGroupBy(QueryBuilder query, Class<T> clazz, AggregationBuilder agg, SortBuilder<?> sort, String groupAliasName) {
         NativeSearchQuery searchQuery = new NativeSearchQuery(query);
-        setPersistentEntityIndexAndType(searchQuery, clazz);
+        setPersistentEntityIndex(searchQuery, clazz);
         SearchSourceBuilder searchSourceBuilder = prepareSearchSourceBuilderWithGroupBy(query, searchQuery, sort, agg);
 
         SearchRequest searchRequest = new SearchRequest();
         searchRequest.indices(searchQuery.getIndices().toArray(new String[searchQuery.getIndices().size()]));
-        searchRequest.types(searchQuery.getTypes().toArray(new String[searchQuery.getTypes().size()]));
         searchRequest.source(searchSourceBuilder);
 
         SearchResponse response = doSearch(searchRequest);
         return mapResults4GroupBy(response, clazz, groupAliasName);
-    }
-
-    @Override
-    public <T> T sum(QueryBuilder query, Class<T> clazz, AggregationBuilder sumAgg) {
-        List<AggregationBuilder> sumAggList = Lists.newArrayList();
-        sumAggList.add(sumAgg);
-        return this.sum(query, clazz, sumAggList);
-    }
-
-    @Override
-    public <T> T sum(QueryBuilder query, Class<T> clazz, List<AggregationBuilder> sumAggList) {
-        NativeSearchQuery searchQuery = new NativeSearchQuery(query);
-        setPersistentEntityIndexAndType(searchQuery, clazz);
-        JsonObject jsonObject = new JsonObject();
-        for (AggregationBuilder agg : sumAggList) {
-            this.populateResponseData(clazz, query, searchQuery, agg, jsonObject);
-        }
-        return gson.fromJson(jsonObject, clazz);
-    }
-
-    /**
-     * 处理查询结果
-     * @param clazz       实体类
-     * @param query       查询
-     * @param searchQuery 查询
-     * @param agg         sum agg
-     * @param jsonObject  结果
-     */
-    private <T> void populateResponseData(Class<T> clazz, QueryBuilder query, NativeSearchQuery searchQuery,
-                                          AggregationBuilder agg, JsonObject jsonObject) {
-        SearchSourceBuilder searchSourceBuilder = prepareSearchSourceBuilderWithGroupBy(query, searchQuery, null, agg);
-        SearchRequest searchRequest = new SearchRequest();
-        searchRequest.indices(searchQuery.getIndices().toArray(new String[searchQuery.getIndices().size()]));
-        searchRequest.types(searchQuery.getTypes().toArray(new String[searchQuery.getTypes().size()]));
-        searchRequest.source(searchSourceBuilder);
-
-        SearchResponse response = doSearch(searchRequest);
-        this.mapResults4Sum(response, clazz, jsonObject);
-    }
-
-    /**
-     * 将 response 结果映射成 结果 对象
-     * @param searchResponse 查询响应
-     * @param clazz          实体类
-     * @param jsonObject     结果
-     */
-    private <T> void mapResults4Sum(SearchResponse searchResponse, Class<T> clazz, JsonObject jsonObject) {
-        Aggregations aggregations = searchResponse.getAggregations();
-        Map<String, Aggregation> aggregationsMap = aggregations.asMap();
-        if (aggregationsMap.size() == 0) {
-            return;
-        }
-        Field[] fields = clazz.getDeclaredFields();
-        for (Field field : fields) {
-            String fieldName = field.getName();
-            ParsedSum sum = (ParsedSum) aggregationsMap.get(fieldName);
-            if (null == sum) {
-                continue;
-            }
-            jsonObject.addProperty(fieldName, sum.getValue());
-        }
     }
 
     /**
@@ -881,19 +800,14 @@ public class ElasticsearchTemplate implements ElasticsearchOperations {
 
         final String index = retrieveIndexNameFromPersistentEntity(clazz);
 
-        final String type = retrieveTypeFromPersistentEntity(clazz);
-
         SearchSourceBuilder searchSourceBuilder = prepareSearchSourceBuilder(query);
         SearchRequest searchRequest = new SearchRequest();
 
         List<String> indices = new ArrayList<>();
-        List<String> types = new ArrayList<>();
 
         indices.add(index);
-        types.add(type);
 
         searchRequest.indices(indices.toArray(new String[indices.size()]));
-        searchRequest.types(types.toArray(new String[indices.size()]));
         searchRequest.source(searchSourceBuilder);
 
         return searchRequest;

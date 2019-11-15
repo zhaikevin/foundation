@@ -2,7 +2,6 @@ package com.github.foundation.es;
 
 import com.github.foundation.es.domain.Page;
 import com.github.foundation.es.domain.Pageable;
-import com.github.foundation.es.query.SearchQuery;
 import com.github.foundation.es.query.SourceFilter;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
@@ -10,7 +9,6 @@ import org.elasticsearch.search.sort.SortBuilder;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Optional;
 
 
 /**
@@ -37,10 +35,8 @@ public interface ElasticsearchRepository<T, ID extends Serializable> {
     /**
      * Retrieves an entity by its id.
      * @param id must not be {@literal null}.
-     * @return the entity with the given id or {@literal Optional#empty()} if none found
-     * @throws IllegalArgumentException if {@code id} is {@literal null}.
      */
-    Optional<T> findById(ID id);
+    T findById(ID id);
 
     /**
      * Deletes the entity with the given id.
@@ -79,13 +75,6 @@ public interface ElasticsearchRepository<T, ID extends Serializable> {
      */
     Page<T> search(QueryBuilder query, Pageable pageable);
 
-    /**
-     * @param searchQuery
-     * @return Page<T>
-     * @Description: 仅包含查询条件
-     */
-    Page<T> search(SearchQuery searchQuery);
-
 
     /**
      * @param source
@@ -110,7 +99,7 @@ public interface ElasticsearchRepository<T, ID extends Serializable> {
      * @return
      * @Description: 带过滤条件
      */
-    public Iterable<T> search(QueryBuilder query, SourceFilter sourceFilter);
+    Iterable<T> search(QueryBuilder query, SourceFilter sourceFilter);
 
     /**
      * 聚合查询
@@ -124,19 +113,9 @@ public interface ElasticsearchRepository<T, ID extends Serializable> {
     List<T> searchWithGroupBy(QueryBuilder query, AggregationBuilder agg, SortBuilder<?> sort, String groupAliasName);
 
     /**
-     * sum，
-     * @param query 查询条件
-     * @param agg   聚合条件
-     * @return 结果
+     * 获取实体类的class
+     * @return
      */
-    T sum(QueryBuilder query, AggregationBuilder agg);
-
-    /**
-     * sum，多个
-     * @param query      查询条件
-     * @param sumAggList 聚合条件
-     * @return 结果
-     */
-    T sum(QueryBuilder query, List<AggregationBuilder> sumAggList);
+    Class<T> getEntityClass();
 
 }

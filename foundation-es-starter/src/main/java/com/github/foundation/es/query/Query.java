@@ -13,9 +13,6 @@ import java.util.List;
  */
 public interface Query {
 
-    int DEFAULT_PAGE_SIZE = 10;
-    // Pageable DEFAULT_PAGE = PageRequest.of(0, DEFAULT_PAGE_SIZE);
-
 
     /**
      * restrict result to entries on given page. Corresponds to the 'start' and 'rows' parameter in elasticsearch
@@ -80,35 +77,5 @@ public interface Query {
      */
     SourceFilter getSourceFilter();
 
-    /**
-     * Get minimum score
-     * @return
-     */
-    float getMinScore();
-
-    /**
-     * Get if scores will be computed and tracked, regardless of whether sorting on a field. Defaults to <tt>false</tt>.
-     * @return
-     * @since 3.1
-     */
-    boolean getTrackScores();
-
-    /**
-     * Get Ids
-     * @return
-     */
-    Collection<String> getIds();
-
-    /**
-     * Type of search
-     * @return
-     */
-    SearchType getSearchType();
-
-    /**
-     * Get indices options
-     * @return null if not set
-     */
-    IndicesOptions getIndicesOptions();
 
 }

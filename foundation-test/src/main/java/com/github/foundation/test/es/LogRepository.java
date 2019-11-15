@@ -12,6 +12,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class LogRepository extends AbstractElasticsearchRepository<Log, String> {
     public LogRepository(ElasticsearchOperations elasticsearchOperations) {
-        super(elasticsearchOperations, Log.class);
+        super(elasticsearchOperations);
     }
 }
