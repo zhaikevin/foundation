@@ -42,6 +42,7 @@ public class LogRepositoryTest extends SpringBootTestAbstract {
 
     @Test
     public void countTest() {
+        logRepository.setIndexName("log-2019.11.11-finance-bank");
         System.out.println(logRepository.count());
     }
 

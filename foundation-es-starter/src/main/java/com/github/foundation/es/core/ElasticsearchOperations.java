@@ -112,4 +112,10 @@ public interface ElasticsearchOperations {
      */
     <T> List<T> searchWithGroupBy(QueryBuilder query, Class<T> clazz, AggregationBuilder agg, SortBuilder<?> sort, String groupAliasName);
 
+    /**
+     * 设置索引名字
+     * @param indexName
+     */
+    void setIndexName(String indexName);
+
 }

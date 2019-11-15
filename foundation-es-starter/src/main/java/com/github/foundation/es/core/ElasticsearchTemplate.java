@@ -118,6 +118,11 @@ public class ElasticsearchTemplate implements ElasticsearchOperations {
     private RestHighLevelClient client;
 
     /**
+     * 索引名字
+     */
+    private String indexName;
+
+    /**
      * gson intend to parse the es response
      */
     private static final Gson gson = new GsonBuilder().serializeNulls().setDateFormat(DATE_FORMAT)
@@ -246,14 +251,16 @@ public class ElasticsearchTemplate implements ElasticsearchOperations {
      * @return index name 索引名称
      */
     private String retrieveIndexNameFromPersistentEntity(Class<?> clazz) {
+        if (this.indexName != null) {
+            return this.indexName;
+        }
         if (clazz != null) {
             Document document = clazz.getAnnotation(Document.class);
             if (document != null) {
-                String indexName = document.indexName();
-                return indexName;
+                this.indexName = document.indexName();
             }
         }
-        return null;
+        return this.indexName;
     }
 
     /**
@@ -712,6 +719,11 @@ public class ElasticsearchTemplate implements ElasticsearchOperations {
 
         SearchResponse response = doSearch(searchRequest);
         return mapResults4GroupBy(response, clazz, groupAliasName);
+    }
+
+    @Override
+    public void setIndexName(String indexName) {
+        this.indexName = indexName;
     }
 
     /**

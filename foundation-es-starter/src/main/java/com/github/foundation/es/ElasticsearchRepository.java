@@ -118,4 +118,10 @@ public interface ElasticsearchRepository<T, ID extends Serializable> {
      */
     Class<T> getEntityClass();
 
+    /**
+     * 设置索引名字
+     * @param indexName
+     */
+    void setIndexName(String indexName);
+
 }

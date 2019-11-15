@@ -15,6 +15,4 @@ public @interface Document {
 
     String indexName();
 
-    String type() default "";
-
 }

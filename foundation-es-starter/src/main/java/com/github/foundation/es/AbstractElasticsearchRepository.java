@@ -128,6 +128,11 @@ public abstract class AbstractElasticsearchRepository<T, ID extends Serializable
         return entityClass;
     }
 
+    @Override
+    public void setIndexName(String indexName){
+        elasticsearchOperations.setIndexName(indexName);
+    }
+
     private Class<T> resolveReturnedClassFromGenericType() {
         ParameterizedType parameterizedType = resolveReturnedClassFromGenericType(getClass());
         return (Class<T>) parameterizedType.getActualTypeArguments()[0];
