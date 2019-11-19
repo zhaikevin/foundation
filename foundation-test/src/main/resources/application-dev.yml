@@ -1,0 +1,52 @@
+server:
+  port: 9080
+  tomcat:
+    uri-encoding: UTF-8
+  servlet:
+    context-path: /foundation-test/
+
+foundation:
+  zookeeper:
+    namespace: github/foundation/dev
+    servers: 172.16.32.184:2181,172.16.32.185:2181,172.16.32.186:2181
+  project:
+    name: foundation-dev
+    env: dev
+
+spring:
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://localhost:3306/crocodile_dev?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.jdbc.Driver
+  elasticsearch:
+    rest:
+      uris: 172.16.32.184:9200,172.16.32.185:9200,172.16.32.186:9200
+      username:
+      password:
+
+
+#pagehelper分页插件
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+
+#mybatis配置
+mybatis:
+  type-aliases-package: com.github.foundation.test.model
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+# 通用 Mapper 配置
+mapper:
+  mappers: com.github.foundation.datasource.mapper.BaseMapper
+  not-empty: false
+  identity: MYSQL

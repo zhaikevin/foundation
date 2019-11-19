@@ -8,6 +8,7 @@ import com.github.foundation.test.service.UserService;
 import com.github.pagehelper.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tk.mybatis.mapper.entity.Example;
 
 import java.util.List;
 
@@ -28,5 +29,12 @@ public class UserServiceImpl implements UserService {
         List<User> list = userMapper.selectAll();
         pagination.setDataset(list);
         pagination.setTotal(((Page<User>) list).getTotal());
+    }
+
+    @Override
+    public User getByName(String userName) {
+        Example example = new Example(User.class);
+        example.createCriteria().andEqualTo("name", userName);
+        return userMapper.selectOneByExample(example);
     }
 }

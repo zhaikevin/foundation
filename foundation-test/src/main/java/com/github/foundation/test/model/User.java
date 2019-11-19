@@ -27,4 +27,13 @@ public class User implements Serializable {
 
     @Column(name = "sex")
     private int sex;
+
+    @Column(name = "password")
+    private String password;
+
+    @Column(name = "salt")
+    private String salt;
+
+    @Column(name = "status")
+    private int status;
 }

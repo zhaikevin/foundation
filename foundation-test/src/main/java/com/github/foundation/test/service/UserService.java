@@ -11,4 +11,6 @@ import com.github.foundation.test.model.User;
 public interface UserService {
 
     void queryByPage(Pagination<User> pagination);
+
+    User getByName(String userName);
 }

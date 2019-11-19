@@ -17,6 +17,7 @@
         <module>foundation-pagination-starter</module>
         <module>foundation-datasource-starter</module>
         <module>foundation-es-starter</module>
+        <module>foundation-authentication-starter</module>
     </modules>
     <name>foundation</name>
 
