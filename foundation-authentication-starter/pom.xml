@@ -13,7 +13,7 @@
     <name>foundation-authentication-starter</name>
     <properties>
         <shiro.version>1.4.0</shiro.version>
-        <jjwt.version>0.9.1</jjwt.version>
+        <shiro-redis.version>3.1.0</shiro-redis.version>
     </properties>
 
 
@@ -83,9 +83,15 @@
         </dependency>
 
         <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt</artifactId>
-            <version>${jjwt.version}</version>
+            <groupId>org.crazycake</groupId>
+            <artifactId>shiro-redis</artifactId>
+            <version>${shiro-redis.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.shiro</groupId>
+                    <artifactId>shiro-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

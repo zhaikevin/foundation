@@ -2,14 +2,17 @@ package com.github.foundation.authentication.model;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
  * @Description:
  * @Author: kevin
  * @Date: 2019/11/18 14:40
  */
 @Data
-public class FoundationUser {
+public class FoundationUser implements Serializable {
 
+    private static final long serialVersionUID = -5947182775784006019L;
     /**
      * 用户id
      */

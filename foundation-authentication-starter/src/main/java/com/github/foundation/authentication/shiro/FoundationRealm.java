@@ -46,7 +46,9 @@ public class FoundationRealm extends AuthorizingRealm {
                 throw new AuthenticationException("密码不正确");
             }
         } catch (Exception e) {
-            log.error("encrypt password failed:{}", e.getMessage(), e);
+            if (!(e instanceof AuthenticationException)) {
+                log.error("encrypt password failed:{}", e.getMessage(), e);
+            }
             throw new AuthenticationException(e.getMessage());
         }
         if (!user.getIsValid()) {
