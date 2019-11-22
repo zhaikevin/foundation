@@ -38,4 +38,12 @@ public class FoundationUser implements Serializable {
      */
     private String userSalt;
 
+    /**
+     * shiro 登出时要用
+     * @return
+     */
+    public long getId() {
+        return userId;
+    }
+
 }

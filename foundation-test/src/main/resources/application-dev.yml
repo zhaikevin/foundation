@@ -12,6 +12,11 @@ foundation:
   project:
     name: foundation-dev
     env: dev
+  authentication:
+    loginUrl: /login.html
+    unauthorizedUrl: /403.html
+    excludeUrls: /user/login
+    sessionTimeoutSeconds: 1800
 
 spring:
   redis:

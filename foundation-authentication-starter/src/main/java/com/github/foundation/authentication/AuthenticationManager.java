@@ -29,6 +29,13 @@ public class AuthenticationManager {
     }
 
     /**
+     * 登出
+     */
+    public void logout() {
+        SecurityUtils.getSubject().logout();
+    }
+
+    /**
      * 对密码进行加密
      * @param userName 用户名
      * @param password 密码

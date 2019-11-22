@@ -41,15 +41,31 @@ public class ShiroConfig {
     @Value("${spring.redis.password}")
     private String password;
 
+    @Value("${foundation.authentication.loginUrl}")
+    private String loginUrl;
+
+    @Value("${foundation.authentication.unauthorizedUrl}")
+    private String unauthorizedUrl;
+
+    @Value("${foundation.authentication.excludeUrls}")
+    private String excludeUrls;
+
     @Bean("shiroFilter")
     public ShiroFilterFactoryBean shiroFilter(SecurityManager securityManager) {
-        ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
-        shiroFilterFactoryBean.setSecurityManager(securityManager);
-        // 拦截器
-        Map<String, String> filterChainDefinitionMap = new LinkedHashMap<String, String>();
-        filterChainDefinitionMap.put("/user/login", "anon");
-        shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
-        return shiroFilterFactoryBean;
+        ShiroFilterFactoryBean shiroFilter = new ShiroFilterFactoryBean();
+        shiroFilter.setSecurityManager(securityManager);
+        shiroFilter.setLoginUrl(loginUrl);
+        shiroFilter.setUnauthorizedUrl(unauthorizedUrl);
+        Map<String, String> filterMap = new LinkedHashMap<>();
+        if (StringUtils.isNotEmpty(excludeUrls)) {
+            String[] permissionUrl = excludeUrls.split(",");
+            for (String url : permissionUrl) {
+                filterMap.put(url, "anon");
+            }
+        }
+        filterMap.put("/**", "authc");
+        shiroFilter.setFilterChainDefinitionMap(filterMap);
+        return shiroFilter;
     }
 
     @Bean("securityManager")
@@ -60,6 +76,7 @@ public class ShiroConfig {
         securityManager.setCacheManager(cacheManager);
         return securityManager;
     }
+
 
     @Bean
     public SessionManager sessionManager(RedisSessionDAO redisSessionDAO) {
@@ -83,7 +100,7 @@ public class ShiroConfig {
         RedisManager redisManager = new RedisManager();
         redisManager.setHost(host);
         redisManager.setPort(port);
-        if(StringUtils.isNotEmpty(password)) {
+        if (StringUtils.isNotEmpty(password)) {
             redisManager.setPassword(password);
         }
         return redisManager;

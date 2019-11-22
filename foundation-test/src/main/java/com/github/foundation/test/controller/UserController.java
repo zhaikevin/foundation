@@ -37,6 +37,12 @@ public class UserController {
         return ResultInfo.success();
     }
 
+    @RequestMapping(value = "/logout", method = RequestMethod.POST)
+    public ResultInfo logout() {
+        authenticationManager.logout();
+        return ResultInfo.success();
+    }
+
     @RequestMapping(value = "/getByName", method = RequestMethod.GET)
     public ResultInfo getByName(@RequestParam(value = "name") String name) {
         return ResultInfo.success(userService.getByName(name));
