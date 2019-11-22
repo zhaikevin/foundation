@@ -7,6 +7,9 @@ import com.github.foundation.test.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @Description:
  * @Author: kevin
@@ -31,5 +34,12 @@ public class FoundationUserServiceImpl implements FoundationUserService {
         foundationUser.setUserSalt(user.getSalt());
         foundationUser.setIsValid(user.getStatus() == 1);
         return foundationUser;
+    }
+
+    @Override
+    public Set<String> getPermissions(Long userId) {
+        Set<String> permissions = new HashSet<>();
+        permissions.add("user:getByName");
+        return permissions;
     }
 }

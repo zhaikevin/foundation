@@ -5,6 +5,7 @@ import com.github.foundation.common.model.ResultInfo;
 import com.github.foundation.test.model.User;
 import com.github.foundation.test.service.UserService;
 import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,7 +45,14 @@ public class UserController {
     }
 
     @RequestMapping(value = "/getByName", method = RequestMethod.GET)
+    @RequiresPermissions("user:getByName")
     public ResultInfo getByName(@RequestParam(value = "name") String name) {
+        return ResultInfo.success(userService.getByName(name));
+    }
+
+    @RequestMapping(value = "/userName", method = RequestMethod.GET)
+    @RequiresPermissions("user:userName")
+    public ResultInfo userName(@RequestParam(value = "name") String name) {
         return ResultInfo.success(userService.getByName(name));
     }
 }
