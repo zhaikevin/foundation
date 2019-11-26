@@ -10,7 +10,6 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>foundation-common</module>
-        <module>foundation-test</module>
         <module>foundation-zookeeper-starter</module>
         <module>foundation-redis-starter</module>
         <module>foundation-spring-starter</module>
@@ -18,6 +17,7 @@
         <module>foundation-datasource-starter</module>
         <module>foundation-es-starter</module>
         <module>foundation-authentication-starter</module>
+        <module>foundation-test</module>
     </modules>
     <name>foundation</name>
 
