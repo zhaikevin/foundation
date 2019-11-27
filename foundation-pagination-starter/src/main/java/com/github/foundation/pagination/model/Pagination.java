@@ -31,6 +31,11 @@ public class Pagination<T> {
     private List<T> dataset;
 
     /**
+     * 查询参数
+     */
+    private SearchParams params;
+
+    /**
      * 创建新的分页数据model {@link Pagination}。<br>
      * 页数从0开始计数，因此如果指定为0，则返回第一页数据。
      * @param page     当前页号
@@ -136,5 +141,20 @@ public class Pagination<T> {
      */
     public Sort getSort() {
         return sort;
+    }
+
+    public SearchParams getParams() {
+        return params;
+    }
+
+    public void setParams(SearchParams params) {
+        this.params = params;
+    }
+
+    public void addParam(SearchParams.Param param) {
+        if (params == null) {
+            params = new SearchParams();
+        }
+        params.addParam(param);
     }
 }

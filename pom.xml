@@ -18,6 +18,7 @@
         <module>foundation-es-starter</module>
         <module>foundation-authentication-starter</module>
         <module>foundation-test</module>
+        <module>foundation-service-starter</module>
     </modules>
     <name>foundation</name>
 

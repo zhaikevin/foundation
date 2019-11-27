@@ -4,6 +4,7 @@ import com.github.foundation.SpringBootTestAbstract;
 import com.github.foundation.pagination.model.Direction;
 import com.github.foundation.pagination.model.Order;
 import com.github.foundation.pagination.model.Pagination;
+import com.github.foundation.pagination.model.SearchParams;
 import com.github.foundation.pagination.model.Sort;
 import com.github.foundation.test.model.User;
 import com.github.foundation.test.service.UserService;
@@ -28,6 +29,16 @@ public class UserServiceTest extends SpringBootTestAbstract {
         userService.queryByPage(pagination);
         Assert.assertEquals(10, pagination.getDataset().size());
         Assert.assertEquals(15, pagination.getTotal());
+    }
+
+    @Test
+    public void queryByPageSearchTest() {
+        Sort sortObj = new Sort(new Order(Direction.fromString("desc"), "id"));
+        Pagination<User> pagination = new Pagination<>(1, 10, sortObj);
+        pagination.addParam(new SearchParams.Param("name","kevin",SearchParams.Compare.EQUAL));
+        userService.queryByPage(pagination);
+        Assert.assertEquals(1, pagination.getDataset().size());
+        Assert.assertEquals(1, pagination.getTotal());
     }
 
 }
