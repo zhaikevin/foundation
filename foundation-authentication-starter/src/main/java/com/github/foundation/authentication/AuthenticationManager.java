@@ -1,5 +1,6 @@
 package com.github.foundation.authentication;
 
+import com.github.foundation.authentication.model.FoundationUser;
 import com.github.foundation.authentication.utils.MD5Utils;
 import com.github.foundation.common.utils.ValidateUtils;
 import org.apache.shiro.SecurityUtils;
@@ -33,6 +34,14 @@ public class AuthenticationManager {
      */
     public void logout() {
         SecurityUtils.getSubject().logout();
+    }
+
+    /**
+     * 获取用户id
+     * @return
+     */
+    public Long getUserId() {
+        return ((FoundationUser) SecurityUtils.getSubject().getPrincipal()).getUserId();
     }
 
     /**
