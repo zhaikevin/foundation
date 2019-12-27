@@ -9,9 +9,6 @@ import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSource
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
-import org.crazycake.shiro.RedisCacheManager;
-import org.crazycake.shiro.RedisManager;
-import org.crazycake.shiro.RedisSessionDAO;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -32,14 +29,14 @@ public class ShiroConfig {
     @Value("${foundation.authentication.sessionTimeoutSeconds:1800}")
     private Long timeout;
 
-    @Value("${spring.redis.host}")
-    private String host;
-
-    @Value("${spring.redis.port}")
-    private int port;
-
-    @Value("${spring.redis.password}")
-    private String password;
+//    @Value("${spring.redis.host}")
+//    private String host;
+//
+//    @Value("${spring.redis.port}")
+//    private int port;
+//
+//    @Value("${spring.redis.password}")
+//    private String password;
 
     @Value("${foundation.authentication.loginUrl}")
     private String loginUrl;
@@ -69,51 +66,77 @@ public class ShiroConfig {
     }
 
     @Bean("securityManager")
-    public SecurityManager securityManager(FoundationRealm foundationRealm, SessionManager sessionManager, RedisCacheManager cacheManager) {
+    public SecurityManager securityManager(FoundationRealm foundationRealm, SessionManager sessionManager) {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         securityManager.setRealm(foundationRealm);
         securityManager.setSessionManager(sessionManager);
-        securityManager.setCacheManager(cacheManager);
         return securityManager;
     }
 
-
+    /**
+     * 单机session
+     * @return
+     */
     @Bean
-    public SessionManager sessionManager(RedisSessionDAO redisSessionDAO) {
+    public DefaultWebSessionManager sessionManager() {
         DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
-        //设置session超时时间
-        sessionManager.setGlobalSessionTimeout(timeout * 10000);
-        //设置redisSessionDao
-        sessionManager.setSessionDAO(redisSessionDAO);
+        sessionManager.setSessionValidationSchedulerEnabled(true);
+        sessionManager.setSessionIdUrlRewritingEnabled(false);
+        sessionManager.setSessionValidationInterval(timeout * 1000);
+        sessionManager.setGlobalSessionTimeout(timeout * 1000);
         return sessionManager;
     }
 
-    @Bean
-    public RedisSessionDAO redisSessionDAO(RedisManager redisManager) {
-        RedisSessionDAO redisSessionDAO = new RedisSessionDAO();
-        redisSessionDAO.setRedisManager(redisManager);
-        return redisSessionDAO;
-    }
+    /**
+     * 基于redis的分布式session
+     * @param securityManager
+     * @return
+     */
+//    @Bean("securityManager")
+//    public SecurityManager securityManager(FoundationRealm foundationRealm, SessionManager sessionManager, RedisCacheManager cacheManager) {
+//        DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
+//        securityManager.setRealm(foundationRealm);
+//        securityManager.setSessionManager(sessionManager);
+//        securityManager.setCacheManager(cacheManager);
+//        return securityManager;
+//    }
 
-    @Bean("shiroRedisManager")
-    public RedisManager redisManager() {
-        RedisManager redisManager = new RedisManager();
-        redisManager.setHost(host);
-        redisManager.setPort(port);
-        if (StringUtils.isNotEmpty(password)) {
-            redisManager.setPassword(password);
-        }
-        return redisManager;
-    }
 
-    @Bean
-    public RedisCacheManager cacheManager(RedisManager redisManager) {
-        RedisCacheManager redisCacheManager = new RedisCacheManager();
-        redisCacheManager.setRedisManager(redisManager);
-        redisCacheManager.setExpire(timeout.intValue());
-        return redisCacheManager;
-    }
+//    @Bean
+//    public SessionManager sessionManager(RedisSessionDAO redisSessionDAO) {
+//        DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
+//        //设置session超时时间
+//        sessionManager.setGlobalSessionTimeout(timeout * 10000);
+//        //设置redisSessionDao
+//        sessionManager.setSessionDAO(redisSessionDAO);
+//        return sessionManager;
+//    }
 
+//    @Bean
+//    public RedisSessionDAO redisSessionDAO(RedisManager redisManager) {
+//        RedisSessionDAO redisSessionDAO = new RedisSessionDAO();
+//        redisSessionDAO.setRedisManager(redisManager);
+//        return redisSessionDAO;
+//    }
+
+//    @Bean("shiroRedisManager")
+//    public RedisManager redisManager() {
+//        RedisManager redisManager = new RedisManager();
+//        redisManager.setHost(host);
+//        redisManager.setPort(port);
+//        if (StringUtils.isNotEmpty(password)) {
+//            redisManager.setPassword(password);
+//        }
+//        return redisManager;
+//    }
+
+//    @Bean
+//    public RedisCacheManager cacheManager(RedisManager redisManager) {
+//        RedisCacheManager redisCacheManager = new RedisCacheManager();
+//        redisCacheManager.setRedisManager(redisManager);
+//        redisCacheManager.setExpire(timeout.intValue());
+//        return redisCacheManager;
+//    }
     @Bean
     public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(SecurityManager securityManager) {
         AuthorizationAttributeSourceAdvisor advisor = new AuthorizationAttributeSourceAdvisor();
