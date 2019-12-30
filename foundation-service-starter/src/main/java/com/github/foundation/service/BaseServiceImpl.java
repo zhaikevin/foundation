@@ -6,6 +6,7 @@ import com.github.foundation.pagination.model.Order;
 import com.github.foundation.pagination.model.Pagination;
 import com.github.foundation.pagination.model.SearchParams;
 import com.github.foundation.pagination.model.Sort;
+import com.github.foundation.service.annotations.ExcludeByPage;
 import com.github.foundation.spring.SpringContextUtils;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -65,26 +66,51 @@ public class BaseServiceImpl<T, S extends BaseMapper> implements BaseService<T, 
      */
     private List<T> searchByExample(Pagination<T> pagination) {
         Example example = new Example(getEntityClass());
+        getSearchParams(example, pagination);
+        excludeProperties(example);
+        return getMapper().selectByExample(example);
+    }
+
+    /**
+     * 组装查询参数
+     * @param example
+     * @param pagination
+     */
+    private void getSearchParams(Example example, Pagination<T> pagination) {
         SearchParams searchParams = pagination.getParams();
-        if (searchParams != null) {
-            List<SearchParams.Param> params = searchParams.getParams();
-            if (CollectionUtils.isNotEmpty(params)) {
-                Example.Criteria criteria = example.createCriteria();
-                for (SearchParams.Param param : params) {
-                    String name = getFieldDbName(param.getName());
-                    if (param.getCompare().equals(SearchParams.Compare.EQUAL)) {
-                        criteria.andEqualTo(name, param.getValue());
-                    } else if (param.getCompare().equals(SearchParams.Compare.LIKE)) {
-                        criteria.andLike(name, "%" + param.getValue().toString() + "%");
-                    } else if (param.getCompare().equals(SearchParams.Compare.NOT_EQUAL)) {
-                        criteria.andNotEqualTo(name, param.getValue());
-                    } else if (param.getCompare().equals(SearchParams.Compare.IN)) {
-                        criteria.andIn(name, (Iterable) param.getValue());
-                    }
-                }
+        if (searchParams == null) {
+            return;
+        }
+        List<SearchParams.Param> params = searchParams.getParams();
+        if (CollectionUtils.isEmpty(params)) {
+            return;
+        }
+        Example.Criteria criteria = example.createCriteria();
+        for (SearchParams.Param param : params) {
+            String name = getFieldDbName(param.getName());
+            if (param.getCompare().equals(SearchParams.Compare.EQUAL)) {
+                criteria.andEqualTo(name, param.getValue());
+            } else if (param.getCompare().equals(SearchParams.Compare.LIKE)) {
+                criteria.andLike(name, "%" + param.getValue().toString() + "%");
+            } else if (param.getCompare().equals(SearchParams.Compare.NOT_EQUAL)) {
+                criteria.andNotEqualTo(name, param.getValue());
+            } else if (param.getCompare().equals(SearchParams.Compare.IN)) {
+                criteria.andIn(name, (Iterable) param.getValue());
             }
         }
-        return getMapper().selectByExample(example);
+    }
+
+    /**
+     * 查询时排除字段
+     * @param example
+     */
+    private void excludeProperties(Example example) {
+        for (Field field : getEntityClass().getDeclaredFields()) {
+            ExcludeByPage excludeByPage = field.getAnnotation(ExcludeByPage.class);
+            if (excludeByPage != null) {
+                example.excludeProperties(field.getName());
+            }
+        }
     }
 
     /**
@@ -125,7 +151,7 @@ public class BaseServiceImpl<T, S extends BaseMapper> implements BaseService<T, 
 
     @Override
     public T getById(Long id) {
-        return (T)getMapper().selectByPrimaryKey(id);
+        return (T) getMapper().selectByPrimaryKey(id);
     }
 
     /**
