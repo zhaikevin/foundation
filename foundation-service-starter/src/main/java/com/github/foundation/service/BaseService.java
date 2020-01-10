@@ -3,6 +3,8 @@ package com.github.foundation.service;
 import com.github.foundation.datasource.mapper.BaseMapper;
 import com.github.foundation.pagination.model.Pagination;
 
+import java.util.List;
+
 /**
  * @Description:
  * @Author: kevin
@@ -41,4 +43,10 @@ public interface BaseService<T, S extends BaseMapper> {
      * @return
      */
     T getById(Long id);
+
+    /**
+     * 获取所有数据
+     * @return
+     */
+    List<T> getAll();
 }

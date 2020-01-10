@@ -154,6 +154,11 @@ public class BaseServiceImpl<T, S extends BaseMapper> implements BaseService<T, 
         return (T) getMapper().selectByPrimaryKey(id);
     }
 
+    @Override
+    public List<T> getAll() {
+        return getMapper().selectAll();
+    }
+
     /**
      * 获取实体类
      * @return
