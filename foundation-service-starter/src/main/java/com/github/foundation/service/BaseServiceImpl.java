@@ -87,7 +87,8 @@ public class BaseServiceImpl<T, S extends BaseMapper> implements BaseService<T, 
         }
         Example.Criteria criteria = example.createCriteria();
         for (SearchParams.Param param : params) {
-            String name = getFieldDbName(param.getName());
+            //String name = getFieldDbName(param.getName());
+            String name = param.getName();
             if (param.getCompare().equals(SearchParams.Compare.EQUAL)) {
                 criteria.andEqualTo(name, param.getValue());
             } else if (param.getCompare().equals(SearchParams.Compare.LIKE)) {
