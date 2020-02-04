@@ -16,6 +16,7 @@ import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.Set;
@@ -30,6 +31,7 @@ import java.util.Set;
 public class FoundationRealm extends AuthorizingRealm {
 
     @Autowired
+    @Lazy
     private FoundationUserService foundationUserService;
 
     @Override
