@@ -21,4 +21,17 @@ public final class ValidateUtils {
             throw new IllegalParameterException(message);
         }
     }
+
+    public static void notNull(Object object) {
+        if (object == null) {
+            throw new IllegalParameterException();
+        }
+    }
+
+    public static void notNull(Object object, String message) {
+        if (object == null) {
+            throw new IllegalParameterException(message);
+        }
+    }
+
 }
