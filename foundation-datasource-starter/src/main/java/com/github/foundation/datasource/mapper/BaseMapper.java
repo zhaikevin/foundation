@@ -1,5 +1,6 @@
 package com.github.foundation.datasource.mapper;
 
+import tk.mybatis.mapper.common.IdsMapper;
 import tk.mybatis.mapper.common.Mapper;
 import tk.mybatis.mapper.common.MySqlMapper;
 
@@ -8,5 +9,5 @@ import tk.mybatis.mapper.common.MySqlMapper;
  * @Author: kevin
  * @Date: 2019/11/8 09:36
  */
-public interface BaseMapper<T> extends Mapper<T>,MySqlMapper<T> {
+public interface BaseMapper<T> extends Mapper<T>, MySqlMapper<T>, IdsMapper<T> {
 }
