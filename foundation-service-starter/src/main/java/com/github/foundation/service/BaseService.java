@@ -29,7 +29,7 @@ public interface BaseService<T, S extends BaseMapper> {
      * 根据主键更新属性不为null的值
      * @param record
      */
-    void UpdateByPrimaryKeySelective(T record);
+    void updateByPrimaryKeySelective(T record);
 
     /**
      * 根据主键删除字段

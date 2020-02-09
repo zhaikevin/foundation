@@ -141,7 +141,7 @@ public class BaseServiceImpl<T, S extends BaseMapper> implements BaseService<T, 
     }
 
     @Override
-    public void UpdateByPrimaryKeySelective(T record) {
+    public void updateByPrimaryKeySelective(T record) {
         getMapper().updateByPrimaryKeySelective(record);
     }
 
