@@ -1,7 +1,7 @@
 package com.github.foundation.authentication;
 
 import com.github.foundation.authentication.model.FoundationUser;
-import com.github.foundation.authentication.utils.MD5Utils;
+import com.github.foundation.common.utils.MD5Utils;
 import com.github.foundation.common.utils.ValidateUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;

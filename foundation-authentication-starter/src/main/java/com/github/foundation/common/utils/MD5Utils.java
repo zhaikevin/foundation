@@ -1,4 +1,4 @@
-package com.github.foundation.authentication.utils;
+package com.github.foundation.common.utils;
 
 import org.apache.commons.codec.binary.Base64;
 

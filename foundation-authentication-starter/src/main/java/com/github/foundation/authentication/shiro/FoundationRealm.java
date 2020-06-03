@@ -2,7 +2,7 @@ package com.github.foundation.authentication.shiro;
 
 import com.github.foundation.authentication.FoundationUserService;
 import com.github.foundation.authentication.model.FoundationUser;
-import com.github.foundation.authentication.utils.MD5Utils;
+import com.github.foundation.common.utils.MD5Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
